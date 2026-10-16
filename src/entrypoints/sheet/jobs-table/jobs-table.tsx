@@ -10,21 +10,20 @@ import {
 } from '@/components/ui/table';
 import { cn } from '@/utils/cn';
 import type { JobRequest } from '@/utils/open-sheet';
-import type { JobTable, JobTableRow } from './columns';
+import { ACTIONS_COLUMN_ID, type JobTable, type JobTableRow } from './columns';
 
 const SORT_ICONS = { asc: ArrowUp, desc: ArrowDown } as const;
 const ARIA_SORT = { asc: 'ascending', desc: 'descending' } as const;
-const HIGHLIGHT = 'color-mix(in oklab, var(--primary) 25%, transparent)';
+const HIGHLIGHT = 'color-mix(in oklab, var(--primary) 25%, var(--card))';
 const HIGHLIGHT_MS = 2000;
 
 function showRow(row: HTMLTableRowElement | null) {
   row?.scrollIntoView({ block: 'center' });
-  row?.animate({ backgroundColor: [HIGHLIGHT, 'transparent'] }, { duration: HIGHLIGHT_MS });
+  row?.animate({ backgroundColor: [HIGHLIGHT, 'var(--card)'] }, { duration: HIGHLIGHT_MS });
 }
 
 /**
- * The rows of one page in a table. A header with a sort turns into a button, and a job flagged
- * `needsReview` gets a highlighted row. The text, pickers and notes edit in place.
+ * The rows of one page. The cells edit in place and the actions column stays pinned to the right.
  *
  * The row of the job in focus scrolls into view and flashes.
  */
@@ -47,7 +46,15 @@ export function JobsTable({
                 const sorted = header.column.getIsSorted();
                 const SortIcon = sorted ? SORT_ICONS[sorted] : ChevronsUpDown;
                 return (
-                  <TableHead key={header.id} aria-sort={sorted ? ARIA_SORT[sorted] : undefined}>
+                  <TableHead
+                    key={header.id}
+                    aria-sort={sorted ? ARIA_SORT[sorted] : undefined}
+                    className={
+                      header.column.id === ACTIONS_COLUMN_ID
+                        ? 'sticky right-0 bg-card shadow-[inset_1px_0_0_var(--border)]'
+                        : undefined
+                    }
+                  >
                     {header.column.getCanSort() ? (
                       <Button
                         variant="ghost"
@@ -74,10 +81,17 @@ export function JobsTable({
               key={row.id === focus?.id ? `${row.id}:${focus.token}` : row.id}
               ref={row.id === focus?.id ? showRow : undefined}
               data-needs-review={row.original.needsReview}
-              className="data-[needs-review=true]:bg-review data-[needs-review=true]:hover:bg-review"
+              className="bg-card hover:bg-row-hover has-aria-expanded:bg-row-hover data-[needs-review=true]:bg-review data-[needs-review=true]:hover:bg-review"
             >
               {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id}>
+                <TableCell
+                  key={cell.id}
+                  className={
+                    cell.column.id === ACTIONS_COLUMN_ID
+                      ? 'sticky right-0 bg-inherit shadow-[inset_1px_0_0_var(--border)]'
+                      : undefined
+                  }
+                >
                   <table.FlexRender cell={cell} />
                 </TableCell>
               ))}

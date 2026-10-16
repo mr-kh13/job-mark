@@ -47,6 +47,9 @@ export type JobTableRow = Row<typeof features, Job>;
 
 const helper = createColumnHelper<typeof features, Job>();
 
+/** The column with the open and delete buttons. The table keeps it pinned to the right edge. */
+export const ACTIONS_COLUMN_ID = 'actions';
+
 const saveJob = (job: Job, patch: JobPatch) =>
   void writeOrReport(jobStore.update(job.id, patch), 'save the change');
 
@@ -151,7 +154,7 @@ export const jobColumns = helper.columns([
     ),
   }),
   helper.display({
-    id: 'actions',
+    id: ACTIONS_COLUMN_ID,
     enableHiding: false,
     header: () => <span className="sr-only">Actions</span>,
     cell: ({ row }) => {

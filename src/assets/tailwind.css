@@ -80,6 +80,7 @@
   --color-ring: var(--ring);
   --color-review: var(--review);
   --color-warning: var(--warning);
+  --color-row-hover: color-mix(in oklab, var(--muted) 50%, var(--card));
 }
 
 @theme {
