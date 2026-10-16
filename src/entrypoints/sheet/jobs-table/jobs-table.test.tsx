@@ -136,6 +136,16 @@ describe('JobsTable', () => {
     expect(link.getAttribute('aria-label')).toBe('Open Engineer in a new tab');
   });
 
+  it('pins the actions to the right edge, so they stay in view when the table scrolls', async () => {
+    const screen = await render(<Harness jobs={[makeJob({ title: 'Engineer' })]} />);
+
+    const pinned = Array.from(screen.querySelectorAll('th.sticky, td.sticky'));
+
+    expect(pinned).toHaveLength(2);
+    expect(pinned[0]?.textContent).toBe('Actions');
+    expect(pinned[1]?.contains(byLabel(screen, 'Delete Engineer'))).toBe(true);
+  });
+
   it('changes a job’s status from its row', async () => {
     const job = makeJob({ title: 'Engineer' });
     await putJobs(job);
@@ -462,7 +472,7 @@ describe('JobsTable: the requested job', () => {
     await render(<RequestHarness jobs={two} request={request('seek:1')} />);
 
     expect(animate).toHaveBeenCalledExactlyOnceWith(
-      { backgroundColor: [expect.any(String), 'transparent'] },
+      { backgroundColor: [expect.any(String), 'var(--card)'] },
       { duration: 2000 },
     );
     expect(titleIn(calledOn(animate))).toBe('Wanted');
