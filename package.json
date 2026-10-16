@@ -1,5 +1,5 @@
 {
-  "name": "job-marker",
+  "name": "job-mark",
   "description": "Job application tracker browser extension.",
   "private": true,
   "version": "0.1.0",

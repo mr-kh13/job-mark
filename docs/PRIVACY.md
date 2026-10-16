@@ -54,4 +54,4 @@ Jobmark is independent and not affiliated with, endorsed by or sponsored by Seek
 
 ## Contact
 
-Questions or concerns: open an issue at <https://github.com/mr-kh13/job-marker/issues>.
+Questions or concerns: open an issue at <https://github.com/mr-kh13/job-mark/issues>.

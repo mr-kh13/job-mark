@@ -67,7 +67,7 @@ type JobOps = typeof jobOps;
 
 /** One write at a time across popup, sheet and service worker (they share Web Locks). */
 const exclusive = async <T>(task: () => Promise<T>): Promise<T> =>
-  await navigator.locks.request('job-marker:write', task);
+  await navigator.locks.request('job-mark:write', task);
 
 const transaction = <T>(task: (ops: JobOps) => Promise<T>): Promise<T> =>
   exclusive(() => task(jobOps));
