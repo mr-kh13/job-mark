@@ -2,5 +2,4 @@
 .wxt
 seed
 pnpm-lock.yaml
-*.md
 src/sites/fixtures
