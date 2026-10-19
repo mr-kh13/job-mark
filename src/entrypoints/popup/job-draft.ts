@@ -8,7 +8,6 @@ import {
   pickTitle,
   splitPageTitle,
 } from '@/sites/job-fields';
-import { logger } from '@/utils/logger';
 import { normalizeText } from '@/utils/text';
 import { isWebLink, normalizeUrl, parseUrl } from '@/utils/url';
 
@@ -83,7 +82,7 @@ export async function snapshotActiveTab(): Promise<TabSnapshot | null> {
     if (injection?.result) return { snapshot: injection.result, isReadable: true, job };
   } catch (error) {
     // Expected on pages the browser protects. Also the symptom of a missing permission.
-    logger.warn({ err: error }, 'Could not read the page');
+    console.warn('Could not read the page', error);
   }
   return {
     snapshot: {

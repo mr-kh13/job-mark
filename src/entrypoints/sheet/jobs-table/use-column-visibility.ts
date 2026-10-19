@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import type { ColumnVisibilityState } from '@tanstack/react-table';
 import { z } from 'zod';
-import { logger } from '@/utils/logger';
 
 export const COLUMNS_STORAGE_KEY = 'jobmark:sheet-columns';
 
@@ -11,7 +10,7 @@ function load(): ColumnVisibilityState {
   try {
     return Stored.parse(JSON.parse(localStorage.getItem(COLUMNS_STORAGE_KEY) ?? '{}'));
   } catch (error) {
-    logger.warn({ err: error }, 'Could not read the saved columns');
+    console.warn('Could not read the saved columns', error);
     return {};
   }
 }
@@ -30,7 +29,7 @@ export function useColumnVisibility() {
     try {
       localStorage.setItem(COLUMNS_STORAGE_KEY, JSON.stringify(next));
     } catch (error) {
-      logger.warn({ err: error }, 'Could not save the column choice');
+      console.warn('Could not save the column choice', error);
     }
   };
 

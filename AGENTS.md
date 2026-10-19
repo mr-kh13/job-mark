@@ -2,7 +2,7 @@
 
 Jobmark is a Chrome extension (Manifest V3) that logs the jobs a user saves or applies for on Seek (Australia and New Zealand) and LinkedIn, in a private sheet kept in the browser. This file tells coding agents and contributors how to work in the repo. [README.md](README.md) covers the product and [docs/PRIVACY.md](docs/PRIVACY.md) is the privacy policy.
 
-Stack: WXT, React 19, TypeScript, Tailwind CSS 4, shadcn on Base UI, zod 4, TanStack Form and Table, date-fns, lucide-react, pino, write-excel-file, Vitest 5, pnpm.
+Stack: WXT, React 19, TypeScript, Tailwind CSS 4, shadcn on Base UI, zod 4, TanStack Form and Table, date-fns, lucide-react, write-excel-file, Vitest 5, pnpm.
 
 ## Commands
 
@@ -21,7 +21,7 @@ Format after edits with `pnpm format`. It covers Markdown too, so Prettier align
 Checks after each build (as of 0.1.0; investigate any growth):
 
 - `grep -c "fetch(" .output/chrome-mv3/chunks/*.js .output/chrome-mv3/background.js .output/chrome-mv3/content-scripts/*.js | grep -v ":0$"` lists nothing.
-- `grep -lE "zod|pino|date-fns|LanguageModel" .output/chrome-mv3/content-scripts/*.js` lists nothing.
+- `grep -lE "zod|date-fns|LanguageModel" .output/chrome-mv3/content-scripts/*.js` lists nothing.
 - Content scripts are about 7.5 KB (LinkedIn) and 8 KB (Seek). The package is about 1 MB.
 - The manifest asks only for `storage`, `scripting` and `activeTab`, with no `host_permissions` and no `web_accessible_resources` (LinkedIn probes extension ids through web-accessible files). The content scripts match `au.seek.com`, `nz.seek.com` and `www.linkedin.com`.
 
@@ -49,7 +49,6 @@ The linter enforces these ([eslint.config.js](eslint.config.js)):
 - No spread anywhere in `src`, tests included. Use `over.x ?? default` and `array.concat(...)`.
 - No re-exports, no `Object.assign`, no empty `catch`. Use `type`, not `interface`.
 - Boolean variables, parameters and type properties start with `is`, `has`, `can`, `should`, `did` or `will`.
-- No `console` in `src` (use `@/utils/logger`), except in `src/content/**`.
 - Layers: `src/content/**` and `src/sites/**` import only a small allow-list at runtime (`@/store/job-display`, `@/store/job-key`, `@/utils/text`, `@/utils/url`, `@/content/*`, `@/sites/*`), and everything else is type-only. `components`, `store`, `hooks`, `utils` and `messages` cannot import `@/entrypoints/*`. `popup`, `sheet` and `background` cannot import each other.
 
 Conventions the linter cannot check:
@@ -58,7 +57,7 @@ Conventions the linter cannot check:
 - Handlers are `handle*` (`handleSave`) and props are `on*`. Name a value by what it holds or returns, so vague names such as `now` or `data` get flagged. Files in `components/` and `hooks/` are kebab-case.
 - The only `useEffect` in app code is in `hooks/use-jobs.ts`.
 - Comments are one or two lines, with no narrative or bug history and no unmeasured numbers. A JSDoc summary is at most two lines, then `@param name - description`, `@returns`, `@throws`, with no `{type}`.
-- Log with `logger.warn({ err: error }, 'Could not do X')`. For a user-requested action use `reportFailure('do X', error)` or `writeOrReport(promise, 'do X')` (see `src/utils/write-or-report.ts`).
+- Log with `console.warn('Could not do X', error)`. For a user-requested action use `reportFailure('do X', error)` or `writeOrReport(promise, 'do X')` (see `src/utils/write-or-report.ts`).
 - UI uses the styled components. Show extra information with an info icon and the Base UI tooltip (`components/ui/tooltip.tsx`), never the native `title` attribute.
 - Prettier: single quotes, 100 columns.
 - Prose (docs, comments, copy): short, plain sentences. State things directly, with no "not X, but Y" contrast and no marketing words.

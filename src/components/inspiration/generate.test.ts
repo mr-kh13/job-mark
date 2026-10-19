@@ -1,7 +1,6 @@
 // @vitest-environment node
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { stubLanguageModel } from '@/test-utils/language-model';
-import { logger } from '@/utils/logger';
 import { acceptLine, generateMessage } from './generate';
 
 afterEach(() => {
@@ -17,7 +16,7 @@ describe('generateMessage', () => {
   });
 
   it('returns nothing, without a warning, when the browser has no language model', async () => {
-    const warn = vi.spyOn(logger, 'warn').mockImplementation(() => {});
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
     expect(await generateMessage('quiet')).toBeUndefined();
     expect(warn).not.toHaveBeenCalled();
@@ -122,7 +121,7 @@ describe('generateMessage', () => {
     ['the session cannot start', () => stubLanguageModel({ createError: new Error('boom') })],
     ['the session fails', () => stubLanguageModel({ reply: new Error('boom') })],
   ])('returns nothing and logs a warning when %s', async (_, arrange) => {
-    const warn = vi.spyOn(logger, 'warn').mockImplementation(() => {});
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     arrange();
 
     expect(await generateMessage('quiet')).toBeUndefined();
@@ -130,7 +129,7 @@ describe('generateMessage', () => {
   });
 
   it('closes the session when it fails', async () => {
-    vi.spyOn(logger, 'warn').mockImplementation(() => {});
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
     const { session } = stubLanguageModel({ reply: new Error('boom') });
 
     await generateMessage('quiet');

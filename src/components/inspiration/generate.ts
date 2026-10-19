@@ -1,4 +1,3 @@
-import { logger } from '@/utils/logger';
 import type { WeekBand } from './messages';
 
 type LanguageModelSession = {
@@ -72,7 +71,7 @@ export async function generateMessage(band: WeekBand): Promise<string | undefine
     });
     return acceptLine(await session.prompt(ASK[band]));
   } catch (error) {
-    logger.warn({ err: error }, 'Could not write the daily line');
+    console.warn('Could not write the daily line', error);
     return undefined;
   } finally {
     session?.destroy();

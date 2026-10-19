@@ -4,7 +4,6 @@ import type { Job } from '@/store/job';
 import { stubLanguageModel } from '@/test-utils/language-model';
 import { makeJob } from '@/test-utils/make-job';
 import { cleanup, render, settle } from '@/test-utils/render';
-import { logger } from '@/utils/logger';
 import { forgetRequests } from './generated-line';
 import { Inspiration } from './inspiration';
 import { chooseMessage } from './messages';
@@ -237,7 +236,7 @@ describe('Inspiration with the on-device model', () => {
   });
 
   it('shows the fixed line, and logs a warning, when the model fails', async () => {
-    const warn = vi.spyOn(logger, 'warn').mockImplementation(() => {});
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     stubLanguageModel({ reply: new Error('boom') });
 
     const screen = await render(<Inspiration jobs={[]} isAiEnabled />);
@@ -247,7 +246,7 @@ describe('Inspiration with the on-device model', () => {
   });
 
   it('does not ask again in the same page after the model failed', async () => {
-    vi.spyOn(logger, 'warn').mockImplementation(() => {});
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
     const { api } = stubLanguageModel({ reply: 'You are doing well.' });
     api.create.mockRejectedValueOnce(new Error('boom'));
     const first = await render(<Inspiration jobs={[]} isAiEnabled />);
@@ -264,7 +263,7 @@ describe('Inspiration with the on-device model', () => {
     ['text that is not JSON', '{nope'],
     ['JSON of the wrong shape', '{"day":5}'],
   ])('replaces saved data it cannot read: %s', async (_, saved) => {
-    const warn = vi.spyOn(logger, 'warn').mockImplementation(() => {});
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     localStorage.setItem(savedKey('quiet'), saved);
     stubLanguageModel({ reply: 'You are doing well.' });
 
@@ -290,7 +289,7 @@ describe('Inspiration with the on-device model', () => {
   it.each(['getItem', 'setItem'] as const)(
     'still shows the line the model wrote, and logs a warning, when storage fails to %s',
     async (method) => {
-      const warn = vi.spyOn(logger, 'warn').mockImplementation(() => {});
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
       vi.spyOn(Storage.prototype, method).mockImplementation(() => {
         throw new Error('blocked');
       });

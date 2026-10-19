@@ -1,5 +1,4 @@
 import { storage } from '#imports';
-import { logger } from '@/utils/logger';
 import { Job, applyPatch, type JobPatch, type Status } from './job';
 import { isJobKey, jobIdOf, jobKey } from './job-key';
 
@@ -23,7 +22,7 @@ function toJobChange(changes: Record<string, { newValue?: unknown }>): JobChange
     if (parsed.success) {
       change.saved.push(parsed.data);
     } else {
-      logger.warn({ id, issues: parsed.error.issues }, 'Skipping invalid job');
+      console.warn('Skipping invalid job', { id, issues: parsed.error.issues });
       change.removed.push(id);
     }
   }
@@ -43,7 +42,9 @@ const jobOps = {
       if (!isJobKey(key)) continue;
       const parsed = Job.safeParse(value);
       if (parsed.success) jobs.push(parsed.data);
-      else logger.warn({ id: jobIdOf(key), issues: parsed.error.issues }, 'Skipping invalid job');
+      else {
+        console.warn('Skipping invalid job', { id: jobIdOf(key), issues: parsed.error.issues });
+      }
     }
     return jobs;
   },

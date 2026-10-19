@@ -5,7 +5,6 @@ import { jobStore } from '@/store/job-store';
 import { makeJob } from '@/test-utils/make-job';
 import { putJobs } from '@/test-utils/put-jobs';
 import { cleanup, render, settle } from '@/test-utils/render';
-import { logger } from '@/utils/logger';
 import { deleteJob } from './delete-job';
 
 beforeEach(async () => {
@@ -52,7 +51,7 @@ describe('deleteJob', () => {
   });
 
   it('says so, and offers no Undo, when the job cannot be deleted', async () => {
-    vi.spyOn(logger, 'warn').mockImplementation(() => {});
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
     const job = makeJob({ title: 'Senior Engineer' });
     await putJobs(job);
     vi.spyOn(fakeBrowser.storage.local, 'remove').mockRejectedValueOnce(new Error('disk gone'));
@@ -66,7 +65,7 @@ describe('deleteJob', () => {
   });
 
   it('says so when Undo cannot put the job back', async () => {
-    vi.spyOn(logger, 'warn').mockImplementation(() => {});
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
     const job = makeJob({ title: 'Senior Engineer' });
     await putJobs(job);
     await settle(() => deleteJob(job));

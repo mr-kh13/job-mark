@@ -1,6 +1,5 @@
 import { useCallback, useSyncExternalStore } from 'react';
 import { z } from 'zod';
-import { logger } from '@/utils/logger';
 import { generateMessage } from './generate';
 import type { WeekBand } from './messages';
 
@@ -16,7 +15,7 @@ function savedLine(day: string, band: WeekBand): string | undefined {
     const saved = Saved.parse(JSON.parse(raw));
     return saved.day === day ? saved.text : undefined;
   } catch (error) {
-    logger.warn({ err: error }, 'Could not read the saved line');
+    console.warn('Could not read the saved line', error);
     return undefined;
   }
 }
@@ -25,7 +24,7 @@ function saveLine(day: string, band: WeekBand, text: string) {
   try {
     localStorage.setItem(storageKey(band), JSON.stringify({ day, text }));
   } catch (error) {
-    logger.warn({ err: error }, 'Could not save the line');
+    console.warn('Could not save the line', error);
   }
 }
 

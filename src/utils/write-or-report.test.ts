@@ -1,6 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { toast } from '@/components/ui/toast';
-import { logger } from '@/utils/logger';
 import { reportFailure, writeOrReport } from './write-or-report';
 
 afterEach(() => {
@@ -9,7 +8,7 @@ afterEach(() => {
 
 const spies = () => ({
   add: vi.spyOn(toast, 'add').mockReturnValue('toast-id'),
-  warn: vi.spyOn(logger, 'warn').mockImplementation(() => {}),
+  warn: vi.spyOn(console, 'warn').mockImplementation(() => {}),
 });
 
 describe('writeOrReport', () => {
@@ -56,7 +55,7 @@ describe('reportFailure', () => {
 
     reportFailure('delete the job', error);
 
-    expect(warn).toHaveBeenCalledWith({ err: error }, 'Could not delete the job');
+    expect(warn).toHaveBeenCalledWith('Could not delete the job', error);
   });
 
   it('explains a full storage in plain words', () => {

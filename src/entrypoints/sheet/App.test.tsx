@@ -15,7 +15,6 @@ import { chooseFile } from '@/test-utils/file-input';
 import { buttonNamed, fieldFor } from '@/test-utils/query';
 import { openSelect, pickOption } from '@/test-utils/select';
 import { leave, typeInto } from '@/test-utils/text-field';
-import { logger } from '@/utils/logger';
 import App from './App';
 
 beforeEach(() => {
@@ -361,7 +360,7 @@ describe('App', () => {
     });
 
     it('says so when the storage is too full to hold the imported jobs', async () => {
-      vi.spyOn(logger, 'warn').mockImplementation(() => {});
+      vi.spyOn(console, 'warn').mockImplementation(() => {});
       const screen = await render(<App />);
       vi.spyOn(fakeBrowser.storage.local, 'set').mockRejectedValueOnce(
         new Error('Resource::kQuotaBytes quota exceeded'),
@@ -549,7 +548,7 @@ describe('App', () => {
     });
 
     it('keeps the form open and says so when the job cannot be saved', async () => {
-      vi.spyOn(logger, 'warn').mockImplementation(() => {});
+      vi.spyOn(console, 'warn').mockImplementation(() => {});
       const screen = await render(<App />);
       vi.spyOn(fakeBrowser.storage.local, 'set').mockRejectedValueOnce(new Error('disk gone'));
 

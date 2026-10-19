@@ -5,7 +5,6 @@ import { makeJob } from '@/test-utils/make-job';
 import { openMenu } from '@/test-utils/menu';
 import { buttonNamed } from '@/test-utils/query';
 import { cleanup, render, settle } from '@/test-utils/render';
-import { logger } from '@/utils/logger';
 import { createCsv } from './csv';
 import { ExportMenu } from './export-menu';
 
@@ -140,7 +139,7 @@ describe('ExportMenu', () => {
 
     it('says so and gives the reason', async () => {
       const files = failToSave();
-      vi.spyOn(logger, 'warn').mockImplementation(() => {});
+      vi.spyOn(console, 'warn').mockImplementation(() => {});
       const screen = await renderMenu();
 
       await exportAs(screen, 'CSV');
@@ -153,7 +152,7 @@ describe('ExportMenu', () => {
 
     it('reports the failure for an Excel file too', async () => {
       failToSave();
-      vi.spyOn(logger, 'warn').mockImplementation(() => {});
+      vi.spyOn(console, 'warn').mockImplementation(() => {});
       const screen = await renderMenu();
 
       await exportAs(screen, 'Excel');
@@ -164,15 +163,12 @@ describe('ExportMenu', () => {
 
     it('logs the error', async () => {
       failToSave();
-      const warn = vi.spyOn(logger, 'warn').mockImplementation(() => {});
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
       const screen = await renderMenu();
 
       await exportAs(screen, 'CSV');
 
-      expect(warn).toHaveBeenCalledWith(
-        { err: new Error('disk full') },
-        'Could not export the jobs',
-      );
+      expect(warn).toHaveBeenCalledWith('Could not export the jobs', new Error('disk full'));
     });
   });
 });
@@ -198,7 +194,7 @@ describe('ExportMenu toasts', () => {
     vi.spyOn(URL, 'createObjectURL').mockImplementation(() => {
       throw new Error('disk full');
     });
-    vi.spyOn(logger, 'warn').mockImplementation(() => {});
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
     const screen = await renderMenu();
     await exportAs(screen, 'CSV');
     expect(toasts()).toHaveLength(1);

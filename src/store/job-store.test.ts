@@ -1,7 +1,6 @@
 // @vitest-environment node
 import { fakeBrowser } from 'wxt/testing/fake-browser';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { logger } from '@/utils/logger';
 import { applyPatch, type Job, type JobPatch } from './job';
 import { jobStore } from './job-store';
 
@@ -70,15 +69,15 @@ describe('jobStore: saving and reading', () => {
       'job:seek:1': makeJob(),
       'job:seek:bad': { id: 'nope' },
     });
-    const warn = vi.spyOn(logger, 'warn').mockImplementation(() => {});
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
     const ids = (await jobStore.list()).map((job) => job.id);
 
     expect(ids).toEqual(['seek:1']);
     expect(warn).toHaveBeenCalledTimes(1);
     expect(warn).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 'seek:bad' }),
       expect.any(String),
+      expect.objectContaining({ id: 'seek:bad' }),
     );
     warn.mockRestore();
   });
@@ -112,7 +111,7 @@ describe('jobStore: saving and reading', () => {
   });
 
   it('lists only jobs, and warns about nothing, when other data sits in the same storage', async () => {
-    const warn = vi.spyOn(logger, 'warn').mockImplementation(() => {});
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     await jobStore.save(makeJob());
     await jobStore.recordBackup('2026-10-13T01:00:00.000Z');
     await fakeBrowser.storage.local.set({ jobs: { 'seek:9': makeJob({ id: 'seek:9' }) } });
@@ -428,7 +427,7 @@ describe('jobStore.onChange', () => {
 
   it('reports a removed job by its id, without a warning', async () => {
     await jobStore.save(makeJob());
-    const warn = vi.spyOn(logger, 'warn').mockImplementation(() => {});
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const onChange = vi.fn();
     jobStore.onChange(onChange);
 
@@ -452,7 +451,7 @@ describe('jobStore.onChange', () => {
   });
 
   it('reports a stored value that is not a valid job as removed, with a warning', async () => {
-    const warn = vi.spyOn(logger, 'warn').mockImplementation(() => {});
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const onChange = vi.fn();
     jobStore.onChange(onChange);
 
@@ -460,8 +459,8 @@ describe('jobStore.onChange', () => {
 
     expect(onChange).toHaveBeenCalledWith({ saved: [], removed: ['seek:1'] });
     expect(warn).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 'seek:1' }),
       expect.any(String),
+      expect.objectContaining({ id: 'seek:1' }),
     );
   });
 
