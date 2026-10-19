@@ -2,12 +2,9 @@
 
 Jobmark is a Chrome extension (Manifest V3) that logs the jobs a user saves or applies for on Seek (Australia and New Zealand) and LinkedIn, in a private sheet kept in the browser. This file tells coding agents and contributors how to work in the repo. [README.md](README.md) covers the product and [docs/PRIVACY.md](docs/PRIVACY.md) is the privacy policy.
 
-Stack: WXT, React 19, TypeScript, Tailwind CSS 4, shadcn on Base UI, zod 4, TanStack Form and Table, date-fns, lucide-react, write-excel-file, Vitest 5, pnpm.
-
 ## Commands
 
 - `pnpm dev`, `pnpm build`, `pnpm zip` (store zip in `.output/`), `pnpm seed [count]`
-- `pnpm typecheck`, `pnpm lint`, `pnpm test`, `pnpm format`
 
 Run this gate after every change, then the format check:
 
@@ -18,20 +15,20 @@ pnpm exec prettier --check .
 
 Format after edits with `pnpm format`. It covers Markdown too, so Prettier aligns tables.
 
-Checks after each build (as of 0.1.0; investigate any growth):
+Checks after each build:
 
 - `grep -c "fetch(" .output/chrome-mv3/chunks/*.js .output/chrome-mv3/background.js .output/chrome-mv3/content-scripts/*.js | grep -v ":0$"` lists nothing.
 - `grep -lE "zod|date-fns|LanguageModel" .output/chrome-mv3/content-scripts/*.js` lists nothing.
-- Content scripts are about 7.5 KB (LinkedIn) and 8 KB (Seek). The package is about 1 MB.
-- The manifest asks only for `storage`, `scripting` and `activeTab`, with no `host_permissions` and no `web_accessible_resources` (LinkedIn probes extension ids through web-accessible files). The content scripts match `au.seek.com`, `nz.seek.com` and `www.linkedin.com`.
+- Compare content script and package sizes with the last build. Investigate any growth.
+- The manifest asks only for `storage`, `scripting` and `activeTab`, with no `host_permissions` and no `web_accessible_resources` (LinkedIn probes extension ids through web-accessible files).
 
 ## Layout
 
-- `src/entrypoints/`: `background/` (service worker: `click-handler.ts`, `message-handler.ts`, `toolbar-mark.ts`), `popup/`, `sheet/`, and the two content-script entries.
-- `src/content/`: code that runs inside job pages (click classifier and listener, page job, read-job listener).
-- `src/sites/`: everything that depends on a site's markup, one file per site (`seek.ts`, `linkedin.ts`), tested against HTML fixtures in `src/sites/fixtures/`.
-- `src/store/`: the `Job` zod schema (`job.ts`), the store (`job-store.ts`, one storage key per job), keys, display text and stats.
-- `src/messages/`: zod schemas for messages between contexts (`click`, `page-job`, `read-job`).
+- `src/entrypoints/`: `background/` (service worker), `popup/`, `sheet/`, and the two content-script entries.
+- `src/content/`: code that runs inside job pages.
+- `src/sites/`: everything that depends on a site's markup, one file per site, tested against HTML fixtures in `src/sites/fixtures/`.
+- `src/store/`: the `Job` zod schema, the job store (one storage key per job), keys, display text and stats.
+- `src/messages/`: zod schemas for messages between contexts.
 - `src/components/` (shared UI; `ui/` is generated shadcn, lint-exempt; `inspiration/` is the daily line), `src/hooks/`, `src/utils/`, `src/test-utils/`, `scripts/seed.ts`.
 
 Flows:
@@ -49,7 +46,8 @@ The linter enforces these ([eslint.config.js](eslint.config.js)):
 - No spread anywhere in `src`, tests included. Use `over.x ?? default` and `array.concat(...)`.
 - No re-exports, no `Object.assign`, no empty `catch`. Use `type`, not `interface`.
 - Boolean variables, parameters and type properties start with `is`, `has`, `can`, `should`, `did` or `will`.
-- Layers: `src/content/**` and `src/sites/**` import only a small allow-list at runtime (`@/store/job-display`, `@/store/job-key`, `@/utils/text`, `@/utils/url`, `@/content/*`, `@/sites/*`), and everything else is type-only. `components`, `store`, `hooks`, `utils` and `messages` cannot import `@/entrypoints/*`. `popup`, `sheet` and `background` cannot import each other.
+- Content scripts stay small. `src/content/**` and `src/sites/**` have no runtime imports of zod, date-fns, React, hooks, components, messages, or the `Job` schema and store. Type imports are fine.
+- `components`, `store`, `hooks`, `utils` and `messages` cannot import `@/entrypoints/*`. `popup`, `sheet` and `background` cannot import each other.
 
 Conventions the linter cannot check:
 
@@ -65,10 +63,10 @@ Conventions the linter cannot check:
 ## Testing
 
 - Write the failing test first. Mutation-check new logic: change one thing, expect failures, restore, and do not edit sources during a run. A survivor needs a test or a reason it is an equivalent mutant. Moves, renames, docs, CSS and assets skip this.
-- No testing-library. Helpers are in `src/test-utils/` (`render`, `query`, `select`, `menu`, `user-click` and others). UI tests use jsdom with the `web-locks.ts` setup.
-- Store, background and backup tests start with `// @vitest-environment node` and use `fakeBrowser`. It lacks `action.setIcon` and `tabs.sendMessage`, so use `stubTabIcons`, `stubTabReply`, `stubTabs`, `stubInjection` and `stubContexts` from `src/test-utils/browser-stubs.ts`.
+- No testing-library. Helpers are in `src/test-utils/`. UI tests use jsdom with the `web-locks.ts` setup.
+- Store, background and backup tests start with `// @vitest-environment node` and use `fakeBrowser`. It lacks `action.setIcon` and `tabs.sendMessage`, so use the stubs in `src/test-utils/browser-stubs.ts`.
 - A fake `runtime.onMessage` listener must `return true` for the reply to arrive. Use `userClick` for trusted clicks, `vi.restoreAllMocks()` in `afterEach`, and `// @vitest-environment-options {"url": "..."}` for site-address tests.
-- `vitest.config.ts` pins `TZ=UTC`. `xlsx.test.ts` sets its own zone.
+- `vitest.config.ts` pins `TZ=UTC`. A test that needs another zone sets it itself.
 - A test reads the dot pixel of each `public/icon/mark-<hex>-<size>.png` and compares it with `STATUS_COLOURS`. If a status colour changes, redraw those icons.
 
 ## Fixtures and data hygiene
@@ -76,7 +74,7 @@ Conventions the linter cannot check:
 No real company or person names and no production values from Seek or LinkedIn in fixtures, tests, docs or seed data.
 
 - Companies: Acme, Globex, Initech, Contoso, Fabrikam, Northwind, Wingtip, Tailspin, Litware, Adatum, Proseware, Woodgrove.
-- Ids: Seek `10000001` to `10000007`, LinkedIn `1000000001` and `1000000002`. Zero out `sol=` tokens, use `cdn.example.com` for image hosts, and remove `class` attributes from fixtures.
+- Ids: reuse the fake ids already in the fixtures (Seek `10000001` upward, LinkedIn `1000000001` upward). Zero out `sol=` tokens, use `cdn.example.com` for image hosts, and remove `class` attributes from fixtures.
 - After capturing a page, read every distinct text and attribute string, scrub them with a script that counts each replacement, then grep the repo for each original name, id and token. It must find nothing.
 - No emails, local paths or secrets anywhere. `.env.submit` is for store credentials and must stay out of git.
 
@@ -84,7 +82,7 @@ No real company or person names and no production values from Seek or LinkedIn i
 
 - No network requests. Builds set a strict extension-pages CSP with `connect-src 'none'`, and Vite's module-preload polyfill is off because it contains `fetch()`. Never add `unlimitedStorage`, IndexedDB or a remote font, script or image.
 - Every message from a content script is untrusted. The service worker validates it with zod, and the popup validates replies with the `CapturedJob` schema. `import '@/utils/zod-config'` is the first import of the background, popup and sheet entries. The click listener ignores `event.isTrusted === false`.
-- `Job` text fields are capped at 1,000 characters, links at 2,048 and ids at 200.
+- Keep the length caps on `Job` text fields, links and ids in `store/job.ts`.
 - Nothing is injected into Seek or LinkedIn pages: no badges, toasts or overlays (the sites' terms bar them). The service worker sets the toolbar dot.
 - Never click Save or Apply on a real job page to test. It changes the user's account. Use fixtures.
 - A change to what the extension stores, reads, requests or declares in the manifest also changes [docs/PRIVACY.md](docs/PRIVACY.md), the README and the store listing's permission justifications and data disclosure.
@@ -97,13 +95,13 @@ Do not reopen these without asking.
 - No unseen-captures counter, no nagging features and no number on the toolbar icon.
 - Daily line: Chrome's on-device Prompt API only, never a model download, no Suspense, one popup row of at most 56 characters, one AI switch (default on) in the sheet's Settings. The prompt holds only whether the week was quiet, active or the best so far.
 - Brand: blue `#2563eb` to violet `#7c3aed`, ink `#0f172a`, the system font (no bundled font), the logo lockup in headers. The name and logo are excluded from the MIT licence (see the README).
-- Accepted dev-toolchain audit findings (they come in through `wxt` and never ship): no `overrides`. Re-run `pnpm audit` before each store submission.
+- Dev-toolchain audit findings that come in through `wxt` are accepted because they never ship. Add no `overrides` for them. Re-run `pnpm audit` before each store submission.
 - Before the first store release there are no migrations or compatibility shims. After it, any `Job` schema change needs a migration, because `jobStore.list()` skips records that no longer validate and would hide users' data. Update this line when 0.1.0 is published.
 
 ## Dependencies
 
 - `packageManager` pins pnpm and `.node-version` pins Node. pnpm adds a first YAML document to `pnpm-lock.yaml` for the pinned pnpm, which is expected.
-- `pnpm-workspace.yaml` sets `minimumReleaseAge` to 14 days, `trustPolicy: no-downgrade`, `blockExoticSubdeps` and `strictDepBuilds`. Use registry packages only.
+- `pnpm-workspace.yaml` sets the supply-chain policies. Do not loosen them. Use registry packages only.
 - Ask before `pnpm add`, `remove`, `audit`, `view` or `install`, any registry lookup, and the shadcn CLI. They send data out.
 - CI actions are pinned by commit SHA in `.github/workflows/ci.yml`.
 
