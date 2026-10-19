@@ -11,7 +11,6 @@ import { cleanup, render, settle } from '@/test-utils/render';
 import { calledOn, stubScrollAndAnimate } from '@/test-utils/scroll-stubs';
 import { openSelect, pickOption } from '@/test-utils/select';
 import { leave, typeInto } from '@/test-utils/text-field';
-import { logger } from '@/utils/logger';
 import type { JobRequest } from '@/utils/open-sheet';
 import { JobsTable } from './jobs-table';
 import { COLUMNS_STORAGE_KEY } from './use-column-visibility';
@@ -158,7 +157,7 @@ describe('JobsTable', () => {
   });
 
   it('reports a status that cannot be saved', async () => {
-    vi.spyOn(logger, 'warn').mockImplementation(() => {});
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
     const job = makeJob({ title: 'Engineer' });
     await putJobs(job);
     const screen = await render(<Harness jobs={[job]} />);
@@ -359,7 +358,7 @@ describe('JobsTable', () => {
     });
 
     it('reports an edit that cannot be saved', async () => {
-      vi.spyOn(logger, 'warn').mockImplementation(() => {});
+      vi.spyOn(console, 'warn').mockImplementation(() => {});
       const screen = await putAndRender();
       const add = vi.spyOn(toast, 'add').mockReturnValue('toast-id');
       vi.spyOn(fakeBrowser.storage.local, 'set').mockRejectedValueOnce(new Error('disk gone'));

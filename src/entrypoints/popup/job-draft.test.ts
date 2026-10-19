@@ -3,7 +3,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { stubInjection, stubTabReply, stubTabs } from '@/test-utils/browser-stubs';
 import type { CapturedJob } from '@/messages/click';
 import { makeJob } from '@/test-utils/make-job';
-import { logger } from '@/utils/logger';
 import {
   createDraft,
   findExisting,
@@ -99,7 +98,7 @@ describe('snapshotActiveTab', () => {
   });
 
   it('returns what the page script read from the active tab', async () => {
-    const warn = vi.spyOn(logger, 'warn');
+    const warn = vi.spyOn(console, 'warn');
     stubTabs([{ id: 7, url: 'https://acme.com/jobs/1', title: 'Tab title' }]);
     stubInjection(async (tabId) => (tabId === 7 ? [{ result: snapshot }] : []));
 
@@ -123,7 +122,7 @@ describe('snapshotActiveTab', () => {
     stubInjection(async () => {
       throw new Error('Cannot access a chrome:// URL');
     });
-    vi.spyOn(logger, 'warn').mockImplementation(() => {});
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
 
     expect(await snapshotActiveTab()).toEqual({
       snapshot: {
@@ -142,7 +141,7 @@ describe('snapshotActiveTab', () => {
 
   it('logs why the page could not be read', async () => {
     const reason = new Error('Cannot access a chrome:// URL');
-    const warn = vi.spyOn(logger, 'warn').mockImplementation(() => {});
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     stubTabs([{ id: 7, url: 'chrome://extensions' }]);
     stubInjection(async () => {
       throw reason;
@@ -150,7 +149,7 @@ describe('snapshotActiveTab', () => {
 
     await snapshotActiveTab();
 
-    expect(warn).toHaveBeenCalledWith({ err: reason }, 'Could not read the page');
+    expect(warn).toHaveBeenCalledWith('Could not read the page', reason);
   });
 
   it.each([
@@ -363,7 +362,7 @@ describe('snapshotActiveTab with a Jobmark content script on the page', () => {
   });
 
   it('returns no job, and logs nothing, when the tab has no content script', async () => {
-    const warn = vi.spyOn(logger, 'warn');
+    const warn = vi.spyOn(console, 'warn');
     stubTabReply(() => {
       throw new Error('Could not establish connection. Receiving end does not exist.');
     });
@@ -391,7 +390,7 @@ describe('snapshotActiveTab with a Jobmark content script on the page', () => {
     stubInjection(async () => {
       throw new Error('Cannot access contents of the page');
     });
-    vi.spyOn(logger, 'warn').mockImplementation(() => {});
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
 
     const tab = await snapshotActiveTab();
 

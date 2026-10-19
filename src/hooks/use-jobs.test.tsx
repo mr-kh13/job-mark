@@ -4,7 +4,6 @@ import type { Job } from '@/store/job';
 import { jobStore } from '@/store/job-store';
 import { makeJob } from '@/test-utils/make-job';
 import { cleanup, render, settle } from '@/test-utils/render';
-import { logger } from '@/utils/logger';
 import { useJobs } from './use-jobs';
 
 const storeJobs = (...ids: string[]) =>
@@ -68,7 +67,7 @@ describe('useJobs', () => {
   });
 
   it('drops a job whose stored value stops being a valid job', async () => {
-    vi.spyOn(logger, 'warn').mockImplementation(() => {});
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
     await storeJobs('1', '2');
     const screen = await render(<Probe />);
 

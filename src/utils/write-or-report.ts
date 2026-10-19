@@ -1,5 +1,4 @@
 import { toast } from '@/components/ui/toast';
-import { logger } from '@/utils/logger';
 
 const STORAGE_FULL =
   'The storage Chrome gives Jobmark is full. Back up your jobs, then delete some to make room.';
@@ -17,7 +16,7 @@ function describe(error: unknown): string | undefined {
  * @param error - What was thrown.
  */
 export function reportFailure(what: string, error: unknown): void {
-  logger.warn({ err: error }, `Could not ${what}`);
+  console.warn(`Could not ${what}`, error);
   toast.add({
     title: `Couldn't ${what}`,
     description: describe(error),

@@ -30,10 +30,6 @@ export default tseslint.config(
   {
     files: ['src/**/*.{ts,tsx}'],
     rules: {
-      'no-restricted-properties': [
-        'error',
-        { object: 'console', message: "Use the logger from '@/utils/logger'." },
-      ],
       'no-restricted-syntax': [
         'error',
         { selector: 'SpreadElement', message: 'Spreading is forbidden.' },
@@ -74,11 +70,9 @@ export default tseslint.config(
       ],
     },
   },
-  // Content scripts stay tiny, so they cannot bundle the pino logger and use the console.
-  { files: ['src/content/**'], rules: { 'no-restricted-properties': 'off' } },
   // Boundaries between layers.
   {
-    // A content script bundle carries no zod, storage library, logger, dates or React, because it
+    // A content script bundle carries no zod, storage library, dates or React, because it
     // runs inside every page of a job site. Types are erased, so they may come from anywhere.
     files: ['src/content/**/*.{ts,tsx}', 'src/sites/**/*.{ts,tsx}'],
     ignores: ['**/*.test.*', 'src/sites/fixtures/**'],
@@ -86,15 +80,9 @@ export default tseslint.config(
       '@typescript-eslint/no-restricted-imports': [
         'error',
         {
-          paths: [
-            'zod',
-            'date-fns',
-            'pino',
-            'react',
-            'react-dom',
-            'write-excel-file',
-            '#imports',
-          ].map((name) => ({ name, allowTypeImports: true, message: CONTENT_BUNDLE_MESSAGE })),
+          paths: ['zod', 'date-fns', 'react', 'react-dom', 'write-excel-file', '#imports'].map(
+            (name) => ({ name, allowTypeImports: true, message: CONTENT_BUNDLE_MESSAGE }),
+          ),
           patterns: [
             {
               group: [
@@ -104,7 +92,6 @@ export default tseslint.config(
                 '@/messages/*',
                 '@/hooks/*',
                 '@/components/*',
-                '@/utils/logger',
                 '@/utils/format-date',
                 '@/utils/open-sheet',
                 '@/utils/download-file',

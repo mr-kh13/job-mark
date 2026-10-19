@@ -13,7 +13,6 @@ import { useSettings } from '@/hooks/use-settings';
 import { createJob, listedAt, type Job, type NewJob, type Status } from '@/store/job';
 import { jobStore } from '@/store/job-store';
 import { formatTimeAgo } from '@/utils/format-date';
-import { logger } from '@/utils/logger';
 import { summarize } from '@/store/job-stats';
 import { openSheet } from '@/utils/open-sheet';
 import { writeOrReport } from '@/utils/write-or-report';
@@ -214,7 +213,7 @@ export default function App() {
       await openSheet(jobId);
       window.close();
     } catch (error) {
-      logger.error({ err: error }, 'Failed to open the sheet');
+      console.error('Failed to open the sheet', error);
       setView({ kind: 'home', error: "Couldn't open the sheet." });
     }
   };

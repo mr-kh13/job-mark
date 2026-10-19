@@ -10,7 +10,6 @@ import { makeJob } from '@/test-utils/make-job';
 import { buttonNamed, fieldFor } from '@/test-utils/query';
 import { cleanup, render, settle } from '@/test-utils/render';
 import { openSelect, pickOption } from '@/test-utils/select';
-import { logger } from '@/utils/logger';
 import App from './App';
 import type { PageSnapshot } from './job-draft';
 
@@ -270,7 +269,7 @@ describe('the home view', () => {
   });
 
   it('says so when the new status cannot be saved', async () => {
-    vi.spyOn(logger, 'warn').mockImplementation(() => {});
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
     const screen = await renderApp([makeJob({ id: 'seek:1', title: 'Platform Engineer' })]);
     const picker = screen.querySelector<HTMLElement>('[aria-label="Status for Platform Engineer"]');
     vi.spyOn(fakeBrowser.storage.local, 'set').mockRejectedValueOnce(new Error('disk gone'));
@@ -315,7 +314,7 @@ describe('the home view', () => {
   it('stays open and says so when the sheet cannot be opened', async () => {
     const screen = await renderApp();
     vi.spyOn(fakeBrowser.runtime, 'getContexts').mockRejectedValue(new Error('unsupported'));
-    const error = vi.spyOn(logger, 'error').mockImplementation(() => {});
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     await settle(() => buttonNamed(screen, 'Open sheet').click());
 
@@ -372,7 +371,7 @@ describe('saving the open page', () => {
   });
 
   it('stays on the form and says so when the job cannot be saved', async () => {
-    vi.spyOn(logger, 'warn').mockImplementation(() => {});
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
     const screen = await renderApp();
     openPage(snapshotOf({ jsonLd: [posting] }));
     await startSaving(screen);
@@ -477,7 +476,7 @@ describe('saving the open page', () => {
 
   it('asks for the details and leaves the link empty when the page cannot be read', async () => {
     const screen = await renderApp();
-    vi.spyOn(logger, 'warn').mockImplementation(() => {});
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
     stubTabs([{ id: 7, url: 'chrome://extensions', title: 'Extensions' }]);
     stubInjection(async () => {
       throw new Error('Cannot access a chrome:// URL');

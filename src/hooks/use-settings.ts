@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { z } from 'zod';
-import { logger } from '@/utils/logger';
 
 export const SETTINGS_STORAGE_KEY = 'jobmark:settings';
 
@@ -12,7 +11,7 @@ function load(): Settings {
     const raw = localStorage.getItem(SETTINGS_STORAGE_KEY);
     return Settings.parse(raw === null ? {} : JSON.parse(raw));
   } catch (error) {
-    logger.warn({ err: error }, 'Could not read the saved settings');
+    console.warn('Could not read the saved settings', error);
     return Settings.parse({});
   }
 }
@@ -31,7 +30,7 @@ export function useSettings() {
     try {
       localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(next));
     } catch (error) {
-      logger.warn({ err: error }, 'Could not save the settings');
+      console.warn('Could not save the settings', error);
     }
   };
 

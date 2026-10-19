@@ -1,12 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, settle } from '@/test-utils/render';
 import { renderHook } from '@/test-utils/render-hook';
-import { logger } from '@/utils/logger';
 import { SETTINGS_STORAGE_KEY, useSettings } from './use-settings';
 
 beforeEach(() => {
   localStorage.clear();
-  vi.spyOn(logger, 'warn').mockImplementation(() => {});
+  vi.spyOn(console, 'warn').mockImplementation(() => {});
 });
 
 afterEach(async () => {
@@ -21,7 +20,7 @@ describe('useSettings', () => {
     const result = await setup();
 
     expect(result.current[0]).toEqual({ isAiEnabled: true });
-    expect(logger.warn).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
   });
 
   it('keeps a change for the rest of the visit', async () => {
@@ -40,7 +39,7 @@ describe('useSettings', () => {
     const result = await setup();
 
     expect(result.current[0]).toEqual({ isAiEnabled: false });
-    expect(logger.warn).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
   });
 
   it('saves the latest choice only', async () => {
@@ -60,7 +59,7 @@ describe('useSettings', () => {
     const result = await setup();
 
     expect(result.current[0]).toEqual({ isAiEnabled: true });
-    expect(logger.warn).not.toHaveBeenCalled();
+    expect(console.warn).not.toHaveBeenCalled();
   });
 
   it.each([
@@ -75,7 +74,7 @@ describe('useSettings', () => {
     const result = await setup();
 
     expect(result.current[0]).toEqual({ isAiEnabled: true });
-    expect(logger.warn).toHaveBeenCalledOnce();
+    expect(console.warn).toHaveBeenCalledOnce();
   });
 
   it('starts with the defaults, and says so, when the browser refuses to read the storage', async () => {
@@ -86,7 +85,7 @@ describe('useSettings', () => {
     const result = await setup();
 
     expect(result.current[0]).toEqual({ isAiEnabled: true });
-    expect(logger.warn).toHaveBeenCalledOnce();
+    expect(console.warn).toHaveBeenCalledOnce();
   });
 
   it('still applies a change for this visit, and says so, when the browser refuses to save it', async () => {
@@ -98,6 +97,6 @@ describe('useSettings', () => {
     await settle(() => result.current[1]({ isAiEnabled: false }));
 
     expect(result.current[0]).toEqual({ isAiEnabled: false });
-    expect(logger.warn).toHaveBeenCalledOnce();
+    expect(console.warn).toHaveBeenCalledOnce();
   });
 });

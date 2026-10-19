@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { logger } from '@/utils/logger';
 import { handleClick } from './click-handler';
 import { markToolbar } from './toolbar-mark';
 import { ClickMessage, type ClickResult } from '@/messages/click';
@@ -24,19 +23,19 @@ export async function handleMessage(
 ): Promise<ClickResult | undefined> {
   const parsed = Message.safeParse(raw);
   if (!parsed.success) {
-    logger.warn({ issues: parsed.error.issues }, 'Ignoring invalid message');
+    console.warn('Ignoring invalid message', parsed.error.issues);
     return undefined;
   }
   try {
     if (parsed.data.type === 'page-job') {
       const tabId = sender.tab?.id;
-      if (tabId === undefined) logger.warn('Ignoring a page-job message from outside a tab');
+      if (tabId === undefined) console.warn('Ignoring a page-job message from outside a tab');
       else await markToolbar(tabId, parsed.data.id);
       return undefined;
     }
     return await handleClick(parsed.data);
   } catch (error) {
-    logger.error({ err: error }, 'Failed to handle message');
+    console.error('Failed to handle message', error);
     return undefined;
   }
 }

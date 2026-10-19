@@ -4,7 +4,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { jobStore } from '@/store/job-store';
 import { stubTabIcons } from '@/test-utils/browser-stubs';
 import { makeJob } from '@/test-utils/make-job';
-import { logger } from '@/utils/logger';
 import { handleMessage, listenForMessages } from './message-handler';
 
 const T1 = '2026-10-14T01:00:00.000Z';
@@ -31,8 +30,8 @@ const makeMessage = (over: { kind?: string; clickedAt?: string } = {}) => ({
 beforeEach(() => {
   fakeBrowser.reset();
   icons = stubTabIcons();
-  vi.spyOn(logger, 'warn').mockImplementation(() => {});
-  vi.spyOn(logger, 'error').mockImplementation(() => {});
+  vi.spyOn(console, 'warn').mockImplementation(() => {});
+  vi.spyOn(console, 'error').mockImplementation(() => {});
 });
 
 afterEach(() => {
@@ -78,7 +77,7 @@ describe('handleMessage with something else', () => {
 
     expect(reply).toBeUndefined();
     expect(await jobStore.list()).toEqual([]);
-    expect(logger.warn).toHaveBeenCalledOnce();
+    expect(console.warn).toHaveBeenCalledOnce();
   });
 });
 
@@ -91,7 +90,7 @@ describe('handleMessage with a field far over the size limit', () => {
 
     expect(reply).toBeUndefined();
     expect(await jobStore.list()).toEqual([]);
-    expect(logger.warn).toHaveBeenCalledOnce();
+    expect(console.warn).toHaveBeenCalledOnce();
   });
 });
 
@@ -102,7 +101,7 @@ describe('handleMessage when storage fails', () => {
     const reply = await handleMessage(makeMessage());
 
     expect(reply).toBeUndefined();
-    expect(logger.error).toHaveBeenCalledOnce();
+    expect(console.error).toHaveBeenCalledOnce();
   });
 });
 
@@ -147,7 +146,7 @@ describe('handleMessage with the job a tab shows', () => {
 
     expect(reply).toBeUndefined();
     expect(iconOn(5)).toBeUndefined();
-    expect(logger.warn).toHaveBeenCalledOnce();
+    expect(console.warn).toHaveBeenCalledOnce();
   });
 
   it('ignores a message that comes from no tab and logs a warning', async () => {
@@ -158,7 +157,7 @@ describe('handleMessage with the job a tab shows', () => {
 
     expect(reply).toBeUndefined();
     expect(setIcon).not.toHaveBeenCalled();
-    expect(logger.warn).toHaveBeenCalledOnce();
+    expect(console.warn).toHaveBeenCalledOnce();
   });
 
   it('logs the error and replies with nothing when the icon cannot be marked', async () => {
@@ -168,7 +167,7 @@ describe('handleMessage with the job a tab shows', () => {
     const reply = await handleMessage({ type: 'page-job', id: 'seek:1' }, FROM_TAB);
 
     expect(reply).toBeUndefined();
-    expect(logger.error).toHaveBeenCalledOnce();
+    expect(console.error).toHaveBeenCalledOnce();
   });
 });
 
