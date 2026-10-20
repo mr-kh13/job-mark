@@ -26,14 +26,18 @@ Removing the extension deletes its data, so use **Back up** in the sheet now and
 
 ## 🚀 Install
 
-The extension is not on the Chrome Web Store yet. To run it from source you need Node 24.18.0 and [pnpm](https://pnpm.io) 12.11.2 (pinned in `.node-version` and `package.json`):
+[Add Jobmark to Chrome](https://chromewebstore.google.com/detail/hciadocfmaogonmdfoagnoflofdmhemp) from the Chrome Web Store. Chrome 116 or newer is required.
+
+### From source
+
+You need Node 24.18.0 and [pnpm](https://pnpm.io) 12.11.2 (pinned in `.node-version` and `package.json`):
 
 ```sh
 pnpm install
 pnpm build
 ```
 
-Then open `chrome://extensions`, turn on **Developer mode**, click **Load unpacked** and choose `.output/chrome-mv3`. Chrome 116 or newer is required.
+Then open `chrome://extensions`, turn on **Developer mode**, click **Load unpacked** and choose `.output/chrome-mv3`.
 
 ## 🛠️ Development
 
