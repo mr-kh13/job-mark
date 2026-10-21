@@ -92,6 +92,7 @@ No real company or person names and no production values from Seek or LinkedIn i
 Do not reopen these without asking.
 
 - No xstate, messaging library, react-query, TanStack Virtual or error boundary. The toolbar icon opens the popup. Excel export uses `write-excel-file`. Storage is one key per job.
+- Versioning uses release-please, commit messages use commitlint and husky, and uploads use `wxt submit`. No changesets, semantic-release or manual version bumps.
 - No unseen-captures counter, no nagging features and no number on the toolbar icon.
 - Daily line: Chrome's on-device Prompt API only, never a model download, no Suspense, one popup row of at most 56 characters, one AI switch (default on) in the sheet's Settings. The prompt holds only whether the week was quiet, active or the best so far.
 - Brand: blue `#2563eb` to violet `#7c3aed`, ink `#0f172a`, the system font (no bundled font), the logo lockup in headers. The name and logo are excluded from the MIT licence (see the README).
@@ -103,14 +104,25 @@ Do not reopen these without asking.
 - `packageManager` pins pnpm and `.node-version` pins Node. pnpm adds a first YAML document to `pnpm-lock.yaml` for the pinned pnpm, which is expected.
 - `pnpm-workspace.yaml` sets the supply-chain policies. Do not loosen them. Use registry packages only.
 - Ask before `pnpm add`, `remove`, `audit`, `view` or `install`, any registry lookup, and the shadcn CLI. They send data out.
-- CI actions are pinned by commit SHA in `.github/workflows/ci.yml`.
+- CI actions are pinned by commit SHA in `.github/workflows/`.
 
 ## Git and releases
 
-- Do not commit, stage or push. The maintainer runs git. End each change with a suggested commit message of two to six words, with no body. The working tree has `autocrlf` on, so CRLF warnings are harmless.
+- Do not commit, stage or push. The maintainer runs git. End each change with a suggested commit message: a Conventional Commits type, then two to six words, with no body (see Releases). The working tree has `autocrlf` on, so CRLF warnings are harmless.
 - Push only `main` and version tags, by name. Never `git push --all`.
-- Release: bump `version` in `package.json` (the store needs a higher number each upload), run the gate, `pnpm zip`, then tag `v<version>` once CI is green.
 - The store summary is the manifest `description` in `wxt.config.ts` (132 characters at most) and must match the dashboard. The long listing text lives in the dashboard. Store images are in `docs/store/` (screenshots 1280x800 24-bit PNG with no alpha, promo tile 440x280).
+
+### Releases
+
+release-please ([release.yml](.github/workflows/release.yml)) versions the extension. The store needs a higher number each upload, and it comes from the commits.
+
+- Commit messages and PR titles follow Conventional Commits, because a squash merge uses the title as the commit message. `feat:` bumps the minor version. `fix:` and `perf:` bump the patch. `docs:`, `chore:`, `refactor:`, `test:`, `ci:`, `build:` and `style:` make no release. A `!` after the type marks a breaking change. Start the summary in lower case and leave off the full stop.
+- commitlint ([commitlint.config.js](commitlint.config.js)) checks the rules. A husky `commit-msg` hook in `.husky/` runs it on each commit, and `postinstall` turns the hook on. The repo's squash merge must default to the PR title. CI checks no title, so keep a title you edit in GitHub in the same style.
+- Dependabot titles start with `build(deps):`, so they make no release. Retitle one to `fix(deps):` to ship it.
+- release-please keeps one release PR open. It bumps `version` in `package.json` and writes `CHANGELOG.md`. Check the gate on it, then merge it. The merge creates the `v<version>` tag and a GitHub Release.
+- The release PR is opened with the `RELEASE_PLEASE_TOKEN` secret (a personal access token). Without it the workflow falls back to `GITHUB_TOKEN`, and CI does not run on the release PR.
+- To upload to the Chrome Web Store, run the Submit workflow ([submit.yml](.github/workflows/submit.yml)) from the version tag, never from `main`. It runs `pnpm zip` and `wxt submit`. It uses Chrome Web Store API v2 and needs the repo secrets `CHROME_EXTENSION_ID`, `CHROME_PUBLISHER_ID`, `CHROME_SERVICE_ACCOUNT_CLIENT_EMAIL` and `CHROME_SERVICE_ACCOUNT_PRIVATE_KEY`. Before it runs, check that the permission justifications and data disclosure still match the manifest.
+- `pnpm zip` and an upload in the dashboard still work by hand.
 
 ## Working in a session
 

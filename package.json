@@ -13,7 +13,7 @@
     "build": "wxt build",
     "zip": "wxt zip",
     "typecheck": "tsc --noEmit",
-    "postinstall": "wxt prepare",
+    "postinstall": "wxt prepare && husky",
     "lint": "eslint .",
     "format": "prettier --write .",
     "test": "vitest run",
@@ -34,6 +34,8 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
+    "@commitlint/cli": "^21.2.3",
+    "@commitlint/config-conventional": "^21.2.3",
     "@eslint/js": "^10.0.1",
     "@tailwindcss/vite": "^4.3.3",
     "@types/react": "^19.2.14",
@@ -44,6 +46,7 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "fflate": "^0.8.3",
     "globals": "^17.12.0",
+    "husky": "^9.1.7",
     "jsdom": "^30.1.1",
     "prettier": "^3.9.9",
     "tailwindcss": "^4.3.3",

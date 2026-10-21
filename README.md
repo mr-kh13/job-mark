@@ -56,7 +56,7 @@ Built with [WXT](https://wxt.dev), TypeScript, React, Tailwind CSS and [shadcn/u
 
 ## 🤝 Contributing
 
-Interested in contributing? Feel free to raise a pull request.
+Interested in contributing? Feel free to raise a pull request. Please write your commit messages and PR title in the [Conventional Commits](https://www.conventionalcommits.org) style, for example `fix: show the right count`. A Git hook that `pnpm install` sets up checks your commits.
 
 ## 📄 Licence
 
