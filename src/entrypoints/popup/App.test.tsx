@@ -54,6 +54,8 @@ const rows = (screen: HTMLElement) =>
   Array.from(screen.querySelectorAll<HTMLElement>('[data-slot="recent-job"]'));
 const titles = (screen: HTMLElement) =>
   rows(screen).map((row) => row.querySelector('[data-slot="title"]')?.textContent);
+const deleteButton = (screen: HTMLElement, title: string) =>
+  screen.querySelector<HTMLButtonElement>(`[aria-label="Delete ${title}"]`)!;
 const stats = (screen: HTMLElement) =>
   Array.from(screen.querySelectorAll('[data-slot="stat"]'), (stat) => [
     stat.children[1]?.textContent,
@@ -279,6 +281,68 @@ describe('the home view', () => {
 
     await until(() => expect(toastText().join()).toContain("Couldn't change the status"));
     expect((await jobStore.get('seek:1'))?.status).toBe('Interested');
+  });
+
+  it('gives each job a delete button named after its title', async () => {
+    const screen = await renderApp([
+      makeJob({ id: 'seek:1', title: 'Platform Engineer', savedAt: daysAgo(1) }),
+      makeJob({ id: 'seek:2', title: '', savedAt: daysAgo(2) }),
+    ]);
+
+    const [first, second] = rows(screen);
+
+    expect(first?.querySelector('[aria-label="Delete Platform Engineer"]')).not.toBeNull();
+    expect(second?.querySelector('[aria-label="Delete Untitled"]')).not.toBeNull();
+  });
+
+  it('deletes a job from its row', async () => {
+    const screen = await renderApp([
+      makeJob({ id: 'seek:1', title: 'Newer Role', savedAt: daysAgo(1) }),
+      makeJob({ id: 'seek:2', title: 'Older Role', savedAt: daysAgo(2) }),
+    ]);
+
+    await settle(() => deleteButton(screen, 'Newer Role').click());
+
+    await until(() => expect(titles(screen)).toEqual(['Older Role']));
+    expect((await jobStore.list()).map((job) => job.id)).toEqual(['seek:2']);
+    expect(toastText().join()).toContain('Deleted “Newer Role”');
+  });
+
+  it('brings a deleted job back when Undo is clicked', async () => {
+    const job = makeJob({ id: 'seek:1', title: 'Newer Role', notes: 'Referral' });
+    const screen = await renderApp([job, makeJob({ id: 'seek:2', title: 'Older Role' })]);
+    await settle(() => deleteButton(screen, 'Newer Role').click());
+    await until(() => expect(rows(screen)).toHaveLength(1));
+
+    await settle(() => document.querySelector<HTMLElement>('[data-slot="toast-action"]')!.click());
+
+    await until(() => expect(rows(screen)).toHaveLength(2));
+    expect(await jobStore.get('seek:1')).toEqual(job);
+  });
+
+  it('fills the list from the sixth job when one of the five is deleted', async () => {
+    const jobs = Array.from({ length: 6 }, (_, index) =>
+      makeJob({ id: `seek:${index}`, title: `Role ${index}`, savedAt: daysAgo(index) }),
+    );
+    const screen = await renderApp(jobs);
+
+    await settle(() => deleteButton(screen, 'Role 0').click());
+
+    await until(() =>
+      expect(titles(screen)).toEqual(['Role 1', 'Role 2', 'Role 3', 'Role 4', 'Role 5']),
+    );
+  });
+
+  it('keeps the job and says so when it cannot be deleted', async () => {
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const screen = await renderApp([makeJob({ id: 'seek:1', title: 'Platform Engineer' })]);
+    vi.spyOn(fakeBrowser.storage.local, 'remove').mockRejectedValueOnce(new Error('disk gone'));
+
+    await settle(() => deleteButton(screen, 'Platform Engineer').click());
+
+    await until(() => expect(toastText().join()).toContain("Couldn't delete the job"));
+    expect(titles(screen)).toEqual(['Platform Engineer']);
+    expect(await jobStore.get('seek:1')).toBeDefined();
   });
 
   it('opens the sheet and closes the popup', async () => {

@@ -42,7 +42,7 @@ A line written by the model has a small info icon. You can turn the AI off in Se
 
 ## Your data
 
-Records stay until you delete them in the sheet or remove the extension. **Removing the extension deletes all of its data**, so use **Back up** first. **Import** brings a backup back.
+Records stay until you delete them in the sheet or the toolbar popup, or remove the extension. **Removing the extension deletes all of its data**, so use **Back up** first. **Import** brings a backup back.
 
 ## Changes
 
