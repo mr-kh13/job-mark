@@ -1,7 +1,7 @@
 import { toast } from '@/components/ui/toast';
 import type { Job } from '@/store/job';
 import { jobStore } from '@/store/job-store';
-import { writeOrReport } from '@/utils/write-or-report';
+import { writeOrReport } from './write-or-report';
 
 const UNDO_MS = 6000;
 

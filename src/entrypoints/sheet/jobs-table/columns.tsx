@@ -28,9 +28,9 @@ import {
   type JobPatch,
 } from '@/store/job';
 import { jobStore } from '@/store/job-store';
+import { deleteJob } from '@/utils/delete-job';
 import { formatDate } from '@/utils/format-date';
 import { writeOrReport } from '@/utils/write-or-report';
-import { deleteJob } from './delete-job';
 import { EditableText } from './editable-text';
 
 export const features = tableFeatures({

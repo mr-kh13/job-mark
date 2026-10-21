@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeft, ExternalLink, Plus, Table2 } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Plus, Table2, Trash2 } from 'lucide-react';
 import { BrandLogo } from '@/components/brand-logo';
 import { Inspiration } from '@/components/inspiration/inspiration';
 import { JobForm } from '@/components/job-form/job-form';
@@ -12,6 +12,7 @@ import { useJobs } from '@/hooks/use-jobs';
 import { useSettings } from '@/hooks/use-settings';
 import { createJob, listedAt, type Job, type NewJob, type Status } from '@/store/job';
 import { jobStore } from '@/store/job-store';
+import { deleteJob } from '@/utils/delete-job';
 import { formatTimeAgo } from '@/utils/format-date';
 import { summarize } from '@/store/job-stats';
 import { openSheet } from '@/utils/open-sheet';
@@ -71,6 +72,14 @@ function RecentJob({ job }: { job: Job }) {
         value={job.status}
         onValueChange={handleStatusChange}
       />
+      <Button
+        variant="ghost"
+        size="icon-sm"
+        aria-label={`Delete ${title}`}
+        onClick={() => void deleteJob(job)}
+      >
+        <Trash2 />
+      </Button>
     </li>
   );
 }
